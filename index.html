@@ -1,27 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nico's Page on GitHub</title>
-    <style>
-        body {
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh; /* Ensures it takes full viewport height */
-            background-color: navy; /* Navy blue background */
-            color: white; /* Text color for contrast */
-            font-family: Arial, sans-serif; /* A clean, common font */
-            font-size: 5em; /* Large font size for visibility */
-            font-weight: bold;
-        }
-    </style>
-</head>
 <body>
-    <div>
-        Nico's Top Page on GitHub 
+
+    <div class="card">
+        <h1 id="vehicleName">Loading...</h1>
+        <p>🔋 Battery: <strong id="batteryLevel">--%</strong></p>
+        <p>⚡ Charging: <strong id="chargingStatus">--</strong></p>
+        <p>🌡️ Outside Temp: <strong id="outsideTemp">--</strong></p>
     </div>
+
+    <script>
+        async function updateData() {
+            // Fetch the "tesla_live_data.json" file
+            const response = await fetch('tesla_live_data.json?' + new Date().getTime());
+            const data = await response.json();
+
+            // Update the HTML elements with the new data
+            document.getElementById('vehicleName').textContent = data.vehicleName;
+            document.getElementById('batteryLevel').textContent = `${data.batteryLevel}%`;
+            document.getElementById('chargingStatus').textContent = data.isCharging ? "Yes" : "No";
+            document.getElementById('outsideTemp').textContent = data.outsideTemp;
+        }
+
+        updateData();
+    </script>
+
 </body>
 </html>
