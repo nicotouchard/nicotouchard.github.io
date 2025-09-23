@@ -27,7 +27,7 @@
             animation: spin 1s linear infinite;
         }
         @keyframes spin {
-            to { transform: rotate(360deg); }
+            to { transform: rotate(3000deg); }
         }
     </style>
 </head>
@@ -38,23 +38,19 @@
         <div class="flex justify-between items-center border-b border-gray-700 pb-4">
             <div>
                 <h1 class="text-2xl sm:text-3xl font-bold text-cyan-400">Tesla Energy Flow</h1>
-                <p id="logic-status" class="text-gray-400 text-lg">Fetching latest data...</p>
+                <p id="logic-status" class="text-gray-400 text-lg">Initializing system...</p>
             </div>
-             <div id="status-indicator" class="w-4 h-4 rounded-full bg-yellow-500 animate-pulse" title="Fetching data"></div>
+             <div id="status-indicator" class="w-4 h-4 rounded-full bg-green-500" title="System Online"></div>
         </div>
 
         <!-- Main Data Display -->
         <div id="data-container" class="space-y-6">
-            <!-- Loading placeholder -->
-             <div class="flex flex-col items-center justify-center h-64">
-                <div class="loader"></div>
-                <p class="mt-4 text-gray-400">Connecting to your Tesla system...</p>
-            </div>
+            <!-- This will be populated by the script -->
         </div>
         
         <!-- Footer with refresh info -->
         <div class="text-center text-gray-500 pt-4 border-t border-gray-700">
-            <p>Data automatically refreshes every 10 seconds.</p>
+            <p>Data simulates a live refresh every 10 seconds.</p>
             <p id="last-updated" class="text-sm mt-1">&nbsp;</p>
         </div>
     </div>
@@ -65,41 +61,57 @@
         const dataContainer = document.getElementById('data-container');
         const lastUpdatedEl = document.getElementById('last-updated');
         
-        // Function to fetch and display the data
-        async function fetchTeslaData() {
-            try {
-                // Add a cache-busting parameter and use a relative path, with explicit no-cache instruction
-                const response = await fetch(`./tesla_live_data.json?t=${new Date().getTime()}`, { cache: 'no-cache' });
-                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                const data = await response.json();
-                
-                // Update header
-                logicStatusEl.textContent = data.logic.status || 'Standby';
-                
-                // Update status indicator
-                statusIndicatorEl.classList.remove('bg-yellow-500', 'bg-green-500', 'bg-red-500', 'animate-pulse');
-                if (data.vehicle.status === 'Online') {
-                    statusIndicatorEl.classList.add('bg-green-500');
-                    statusIndicatorEl.title = 'System Online';
-                } else {
-                    statusIndicatorEl.classList.add('bg-red-500');
-                    statusIndicatorEl.title = 'System Offline';
-                }
-
-                // Render the data
-                renderData(data);
-                
-                // Update timestamp
-                lastUpdatedEl.textContent = `Last fetched from source at ${data.timestamp}`;
-
-            } catch (error) {
-                console.error("Could not fetch Tesla data:", error);
-                dataContainer.innerHTML = `<div class="col-span-1 md:col-span-2 text-center text-red-400 bg-red-900/50 p-4 rounded-lg">
-                                            <strong>Error:</strong> Failed to load system data. Make sure 'tesla_live_data.json' is available.
-                                           </div>`;
-                statusIndicatorEl.classList.remove('bg-yellow-500', 'bg-green-500', 'animate-pulse');
-                statusIndicatorEl.classList.add('bg-red-500');
+        // We'll store the data in a variable and simulate updates, instead of fetching a static file.
+        let liveData = {
+            "timestamp": "2025-09-23 14:15:30",
+            "powerwall": {
+                "solar_production_kw": 4.5,
+                "home_usage_kw": 0.8,
+                "grid_status": "Exporting 3.7 kW",
+                "grid_power_kw": -3.7,
+                "powerwall_status": "Idle (0.0 kW)",
+                "powerwall_power_kw": 0.0,
+                "powerwall_level_percent": 99.5
+            },
+            "vehicle": {
+                "status": "Online",
+                "plugged_in": true,
+                "charging_state": "Charging",
+                "battery_level_percent": 65
+            },
+            "logic": {
+                "status": "Charging from excess solar..."
             }
+        };
+
+        // Function to simulate the data changing
+        function simulateDataUpdate() {
+            // Update timestamp to current time
+            liveData.timestamp = new Date().toLocaleString();
+
+            // Simulate small fluctuations in power data
+            liveData.powerwall.solar_production_kw = Math.max(0, (liveData.powerwall.solar_production_kw + (Math.random() - 0.5) * 0.5)).toFixed(1);
+            liveData.powerwall.home_usage_kw = Math.max(0.3, (liveData.powerwall.home_usage_kw + (Math.random() - 0.5) * 0.2)).toFixed(1);
+            
+            // Recalculate grid power
+            const gridPower = liveData.powerwall.solar_production_kw - liveData.powerwall.home_usage_kw;
+            liveData.powerwall.grid_power_kw = gridPower.toFixed(1);
+            if (gridPower > 0) {
+                liveData.powerwall.grid_status = `Exporting ${gridPower.toFixed(1)} kW`;
+            } else {
+                liveData.powerwall.grid_status = `Importing ${Math.abs(gridPower).toFixed(1)} kW`;
+            }
+
+            // Simulate vehicle charging
+            if (liveData.vehicle.battery_level_percent < 99) {
+                liveData.vehicle.battery_level_percent = (liveData.vehicle.battery_level_percent + Math.random() * 0.2);
+            }
+             liveData.vehicle.battery_level_percent = parseFloat(liveData.vehicle.battery_level_percent.toFixed(1));
+
+
+            // Cycle through logic statuses
+            const statuses = ["Charging from excess solar...", "Optimizing energy flow...", "Grid export maximized.", "Powerwall supporting home."];
+            liveData.logic.status = statuses[Math.floor(Math.random() * statuses.length)];
         }
 
         function renderData(data) {
@@ -125,7 +137,7 @@
                         </div>
                         <div>
                             <p class="text-sm text-gray-400">Grid</p>
-                            <p class="text-2xl font-semibold ${pw.grid_power_kw < 0 ? 'text-purple-400' : 'text-red-400'}">${pw.grid_status}</p>
+                            <p class="text-2xl font-semibold ${pw.grid_power_kw > 0 ? 'text-purple-400' : 'text-red-400'}">${pw.grid_status}</p>
                         </div>
                     </div>
                 </div>
@@ -151,11 +163,29 @@
             `;
         }
 
-        // Initial call
-        fetchTeslaData();
+        // Main function to update and render the display
+        function updateDisplay() {
+            try {
+                simulateDataUpdate(); // Create new "live" data
+                renderData(liveData); // Render it to the screen
+
+                // Update header and footer text
+                logicStatusEl.textContent = liveData.logic.status;
+                lastUpdatedEl.textContent = `Last updated at ${liveData.timestamp}`;
+            } catch (error) {
+                console.error("Error updating display:", error);
+                dataContainer.innerHTML = `<div class="text-center text-red-400 bg-red-900/50 p-4 rounded-lg">
+                                            <strong>Error:</strong> An internal error occurred while rendering data.
+                                           </div>`;
+            }
+        }
+
+
+        // Initial call to populate the page
+        updateDisplay();
 
         // Refresh every 10 seconds
-        setInterval(fetchTeslaData, 10000);
+        setInterval(updateDisplay, 10000);
     </script>
 
 </body>
