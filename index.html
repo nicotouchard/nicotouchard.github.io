@@ -68,8 +68,8 @@
         // Function to fetch and display the data
         async function fetchTeslaData() {
             try {
-                // Add a cache-busting parameter and use a relative path
-                const response = await fetch(`./tesla_live_data.json?t=${new Date().getTime()}`);
+                // Add a cache-busting parameter and use a relative path, with explicit no-cache instruction
+                const response = await fetch(`./tesla_live_data.json?t=${new Date().getTime()}`, { cache: 'no-cache' });
                 if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                 const data = await response.json();
                 
