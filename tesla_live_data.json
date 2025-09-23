@@ -1,0 +1,22 @@
+{
+    "timestamp": "2025-09-23 14:15:30",
+    "powerwall": {
+        "solar_production_kw": 4.5,
+        "home_usage_kw": 0.8,
+        "grid_status": "Exporting 3.7 kW",
+        "grid_power_kw": -3.7,
+        "powerwall_status": "Idle (0.0 kW)",
+        "powerwall_power_kw": 0.0,
+        "powerwall_level_percent": 99.5
+    },
+    "vehicle": {
+        "status": "Online",
+        "plugged_in": true,
+        "charging_state": "Charging",
+        "battery_level_percent": 65
+    },
+    "logic": {
+        "status": "Charging from excess solar..."
+    }
+}
+
