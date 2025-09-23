@@ -1,22 +1,21 @@
 {
-    "timestamp": "2025-09-23 14:15:30",
+    "timestamp": "2025-09-23 18:39:01",
     "powerwall": {
-        "solar_production_kw": 4.5,
-        "home_usage_kw": 0.8,
-        "grid_status": "Exporting 3.7 kW",
-        "grid_power_kw": -3.7,
-        "powerwall_status": "Idle (0.0 kW)",
-        "powerwall_power_kw": 0.0,
-        "powerwall_level_percent": 99.5
+        "solar_production_kw": 0.0,
+        "home_usage_kw": 0.7,
+        "grid_status": "Idle (0.0 kW)",
+        "grid_power_kw": 0.0,
+        "powerwall_status": "Discharging 0.7 kW",
+        "powerwall_power_kw": 0.7,
+        "powerwall_level_percent": 89.0
     },
     "vehicle": {
-        "status": "Online",
-        "plugged_in": true,
-        "charging_state": "Charging",
-        "battery_level_percent": 65
+        "status": "Asleep",
+        "plugged_in": null,
+        "charging_state": "N/A",
+        "battery_level_percent": null
     },
     "logic": {
-        "status": "Charging from excess solar..."
+        "status": "Waiting: Outside of active time window."
     }
 }
-
