@@ -1,5 +1,5 @@
 {
-    "timestamp": "2025-09-23 19:15:00",
+    "timestamp": "2025-09-23 19:15:15",
     "powerwall": {
         "solar_production_kw": 0.0,
         "home_usage_kw": 0.87,
@@ -7,7 +7,7 @@
         "grid_power_kw": 0.0,
         "powerwall_status": "Discharging 0.87 kW",
         "powerwall_power_kw": 0.87,
-        "powerwall_level_percent": 84.7
+        "powerwall_level_percent": 84.2
     },
     "vehicle": {
         "status": "Offline",
