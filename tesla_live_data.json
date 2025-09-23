@@ -1,12 +1,12 @@
 {
-    "timestamp": "2025-09-23 20:44:53",
+    "timestamp": "2025-09-23 20:45:08",
     "powerwall": {
         "solar_production_kw": 0.0,
-        "home_usage_kw": 1.24,
+        "home_usage_kw": 1.22,
         "grid_status": "Idle (0.0 kW)",
         "grid_power_kw": 0.0,
-        "powerwall_status": "Discharging 1.24 kW",
-        "powerwall_power_kw": 1.24,
+        "powerwall_status": "Discharging 1.22 kW",
+        "powerwall_power_kw": 1.22,
         "powerwall_level_percent": 72.8
     },
     "vehicle": {
