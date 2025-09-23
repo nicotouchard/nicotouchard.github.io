@@ -1,29 +1,163 @@
 <!DOCTYPE html>
 <html lang="en">
-<body>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tesla Ecosystem Live Data</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .data-card {
+            background-color: rgba(30, 41, 59, 0.5);
+            border: 1px solid rgba(51, 65, 85, 0.5);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+        }
+        .loader {
+            border: 4px solid rgba(255, 255, 255, 0.2);
+            border-left-color: #ffffff;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white min-h-screen flex items-center justify-center p-4">
 
-    <div class="card">
-        <h1 id="vehicleName">Loading...</h1>
-        <p>🔋 Battery: <strong id="batteryLevel">--%</strong></p>
-        <p>⚡ Charging: <strong id="chargingStatus">--</strong></p>
-        <p>🌡️ Outside Temp: <strong id="outsideTemp">--</strong></p>
+    <div class="w-full max-w-3xl bg-gray-800 rounded-xl shadow-2xl p-6 sm:p-8 space-y-6">
+        <!-- Header -->
+        <div class="flex justify-between items-center border-b border-gray-700 pb-4">
+            <div>
+                <h1 class="text-2xl sm:text-3xl font-bold text-cyan-400">Tesla Energy Flow</h1>
+                <p id="logic-status" class="text-gray-400 text-lg">Fetching latest data...</p>
+            </div>
+             <div id="status-indicator" class="w-4 h-4 rounded-full bg-yellow-500 animate-pulse" title="Fetching data"></div>
+        </div>
+
+        <!-- Main Data Display -->
+        <div id="data-container" class="space-y-6">
+            <!-- Loading placeholder -->
+             <div class="flex flex-col items-center justify-center h-64">
+                <div class="loader"></div>
+                <p class="mt-4 text-gray-400">Connecting to your Tesla system...</p>
+            </div>
+        </div>
+        
+        <!-- Footer with refresh info -->
+        <div class="text-center text-gray-500 pt-4 border-t border-gray-700">
+            <p>Data automatically refreshes every 10 seconds.</p>
+            <p id="last-updated" class="text-sm mt-1">&nbsp;</p>
+        </div>
     </div>
 
     <script>
-        async function updateData() {
-            // Fetch the "tesla_live_data.json" file
-            const response = await fetch('tesla_live_data.json?' + new Date().getTime());
-            const data = await response.json();
+        const logicStatusEl = document.getElementById('logic-status');
+        const statusIndicatorEl = document.getElementById('status-indicator');
+        const dataContainer = document.getElementById('data-container');
+        const lastUpdatedEl = document.getElementById('last-updated');
+        
+        // Function to fetch and display the data
+        async function fetchTeslaData() {
+            try {
+                // Add a cache-busting parameter and use a relative path
+                const response = await fetch(`./tesla_live_data.json?t=${new Date().getTime()}`);
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                const data = await response.json();
+                
+                // Update header
+                logicStatusEl.textContent = data.logic.status || 'Standby';
+                
+                // Update status indicator
+                statusIndicatorEl.classList.remove('bg-yellow-500', 'bg-green-500', 'bg-red-500', 'animate-pulse');
+                if (data.vehicle.status === 'Online') {
+                    statusIndicatorEl.classList.add('bg-green-500');
+                    statusIndicatorEl.title = 'System Online';
+                } else {
+                    statusIndicatorEl.classList.add('bg-red-500');
+                    statusIndicatorEl.title = 'System Offline';
+                }
 
-            // Update the HTML elements with the new data
-            document.getElementById('vehicleName').textContent = data.vehicleName;
-            document.getElementById('batteryLevel').textContent = `${data.batteryLevel}%`;
-            document.getElementById('chargingStatus').textContent = data.isCharging ? "Yes" : "No";
-            document.getElementById('outsideTemp').textContent = data.outsideTemp;
+                // Render the data
+                renderData(data);
+                
+                // Update timestamp
+                lastUpdatedEl.textContent = `Last fetched from source at ${data.timestamp}`;
+
+            } catch (error) {
+                console.error("Could not fetch Tesla data:", error);
+                dataContainer.innerHTML = `<div class="col-span-1 md:col-span-2 text-center text-red-400 bg-red-900/50 p-4 rounded-lg">
+                                            <strong>Error:</strong> Failed to load system data. Make sure 'tesla_live_data.json' is available.
+                                           </div>`;
+                statusIndicatorEl.classList.remove('bg-yellow-500', 'bg-green-500', 'animate-pulse');
+                statusIndicatorEl.classList.add('bg-red-500');
+            }
         }
 
-        updateData();
+        function renderData(data) {
+            const pw = data.powerwall;
+            const vh = data.vehicle;
+            
+            dataContainer.innerHTML = `
+                <!-- Powerwall Section -->
+                <div class="data-card space-y-4">
+                    <h2 class="text-xl font-bold text-gray-300 flex items-center"><span class="text-2xl mr-3">🔋</span>Powerwall Status</h2>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
+                        <div>
+                            <p class="text-sm text-gray-400">Battery Level</p>
+                            <p class="text-2xl font-semibold text-green-400">${pw.powerwall_level_percent}%</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-400">Solar</p>
+                            <p class="text-2xl font-semibold text-yellow-400">${pw.solar_production_kw} kW</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-400">Home Use</p>
+                            <p class="text-2xl font-semibold text-blue-400">${pw.home_usage_kw} kW</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-400">Grid</p>
+                            <p class="text-2xl font-semibold ${pw.grid_power_kw < 0 ? 'text-purple-400' : 'text-red-400'}">${pw.grid_status}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Vehicle Section -->
+                <div class="data-card space-y-4">
+                    <h2 class="text-xl font-bold text-gray-300 flex items-center"><span class="text-2xl mr-3">🚗</span>Vehicle Charging</h2>
+                     <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 text-center">
+                        <div>
+                            <p class="text-sm text-gray-400">Status</p>
+                            <p class="text-xl font-semibold">${vh.status}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-400">State</p>
+                            <p class="text-xl font-semibold text-cyan-400">${vh.charging_state}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-400">Battery Level</p>
+                            <p class="text-xl font-semibold text-green-400">${vh.battery_level_percent}%</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Initial call
+        fetchTeslaData();
+
+        // Refresh every 10 seconds
+        setInterval(fetchTeslaData, 10000);
     </script>
 
 </body>
 </html>
+
