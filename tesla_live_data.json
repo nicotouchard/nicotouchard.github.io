@@ -1,19 +1,19 @@
 {
-    "timestamp": "2025-09-23 21:12:46",
+    "timestamp": "2025-09-24 18:35:52",
     "powerwall": {
         "solar_production_kw": 0.0,
-        "home_usage_kw": 1.08,
+        "home_usage_kw": 1.14,
         "grid_status": "Idle (0.0 kW)",
         "grid_power_kw": 0.0,
-        "powerwall_status": "Discharging 1.08 kW",
-        "powerwall_power_kw": 1.08,
-        "powerwall_level_percent": 68.4
+        "powerwall_status": "Discharging 1.14 kW",
+        "powerwall_power_kw": 1.14,
+        "powerwall_level_percent": 86.1
     },
     "vehicle": {
-        "status": "Online",
-        "plugged_in": false,
-        "charging_state": "Disconnected",
-        "battery_level_percent": 95
+        "status": "Asleep",
+        "plugged_in": null,
+        "charging_state": "N/A",
+        "battery_level_percent": null
     },
     "logic": {
         "status": "Waiting: Outside of active time window."
