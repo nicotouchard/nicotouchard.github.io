@@ -1,10 +1,10 @@
 {
-    "timestamp": "2025-09-25 13:35:17",
+    "timestamp": "2025-09-25 13:45:27",
     "powerwall": {
-        "solar_production_kw": 0.99,
-        "home_usage_kw": 0.76,
-        "grid_status": "Exporting 0.23 kW",
-        "grid_power_kw": -0.23,
+        "solar_production_kw": 0.82,
+        "home_usage_kw": 0.68,
+        "grid_status": "Exporting 0.14 kW",
+        "grid_power_kw": -0.14,
         "powerwall_status": "Idle (0.0 kW)",
         "powerwall_power_kw": 0.0,
         "powerwall_level_percent": 100
